@@ -1,0 +1,11 @@
+packages
+
+express
+mongoose
+uuid
+crypto
+body-parser
+morgan
+express-validator
+express-jwt 
+jsonwebtoken
