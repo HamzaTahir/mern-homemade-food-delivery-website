@@ -22,6 +22,11 @@ const productSchema = new mongoose.Schema({
         ref: 'Category',
         required:true,
     },
+    foodlancer:{
+        type: ObjectId,
+        ref: 'foodlancer',
+        required:true
+    },
     quantity:{
         type: Number,
     },

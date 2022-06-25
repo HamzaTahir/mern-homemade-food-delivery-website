@@ -16,13 +16,17 @@ const foodlancerSchema = new mongoose.Schema({
         type: String,
         trim:true,
         required:true,
-        maxlength:32
+        unique:true
     },
     email:{
         type: String,
         trim:true,
         required:true,
         unique:32
+    },
+    photo:{
+        data:Buffer,
+        contentType:String
     },
     hashed_password:{
         type: String,

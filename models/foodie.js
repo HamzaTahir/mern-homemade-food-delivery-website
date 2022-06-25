@@ -59,6 +59,7 @@ foodieSchema.virtual('password')
 foodieSchema.methods = {
 
     authenticate:function(plainText){
+        // console.log(this.encryptPassword(plainText) + " --- " + this.hashed_password);
         return this.encryptPassword(plainText) === this.hashed_password;
     },
     encryptPassword: function(password){

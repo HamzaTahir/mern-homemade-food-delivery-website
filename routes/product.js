@@ -1,16 +1,19 @@
 const express = require('express');
 const router = express('Router');
-const {create, productById, read, remove, update, list, listRelated, listCategories, listBySearch, photo, listSearch} = require('../controllers/product');
+const {create, productById, read, remove, update, list, listRelated, 
+       listCategories, listBySearch, photo, listSearch, foodlancerList} = require('../controllers/product');
 const {requireSignin, isAuth, isAdmin} = require('../controllers/auth');
 const {adminById} = require('../controllers/admin');
-
+const {foodlancerById} = require('../controllers/foodlancer');
+ 
 // product get
 router.get('/product/:productId',read);
-
+ 
 router.post('/product/create/:adminId',requireSignin, isAuth, isAdmin, create);
 router.delete('/product/:productId/:adminId',requireSignin, isAuth, isAdmin, remove);
 router.put('/product/:productId/:adminId',requireSignin, isAuth, isAdmin, update);
 router.get('/products', list);
+router.get('/:foodlancerId/products', foodlancerList);
 router.get("/products/search", listSearch);
 router.get('/products/related/:productId', listRelated);
 router.get('/products/categories', listCategories);
@@ -19,6 +22,7 @@ router.get('/product/photo/:productId', photo);
 
 
 router.param('adminId',adminById)
+router.param('foodlancerId',foodlancerById)
 router.param('productId',productById)
 
 

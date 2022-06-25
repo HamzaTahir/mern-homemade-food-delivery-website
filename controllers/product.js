@@ -8,6 +8,7 @@ const fs = require('fs');
 exports.productById = (req, res, next, id)=>{
     Product.findById(id)
     .populate('category')
+    .populate('foodlancer')
     .exec((err, product)=>{
         if(err || !product){
             return res.status(400).json({
@@ -57,7 +58,7 @@ exports.remove = (req, res)=>{
 //         })
 //     })
 // };
-
+ 
 exports.create = (req, res)=>{
    let form = new formidable.IncomingForm()
    form.keepExtensions = true
@@ -126,11 +127,11 @@ exports.update = (req, res)=>{
          // check for all fields
          const {name, price, description, category, quantity, shipping} = fields;
         //  console.log(name + " " + price + " " + description + " " + category + " " + quantity + " " + shipping);
-         if(!name || !description || !price || !category || !quantity || !shipping){
-             return res.status(400).json({
-                 error:'All fields are required'
-             })
-         }
+        //  if(!name || !description || !price || !category || !quantity || !shipping){
+        //      return res.status(400).json({
+        //          error:'All fields are required'
+        //      })
+        //  }
  
  
          let product = req.product
@@ -151,18 +152,28 @@ exports.update = (req, res)=>{
              product.photo.contentType = files.photo.type
  
          }
+         
+         Product.findOneAndUpdate({_id:req.product._id},{$set:fields}, {$new: true},(err, product)=>{
+            if(err){
+                return res.status(400).json({
+                    error:err
+                })
+            }
+            res.json(product)
+        })
+
+        //  Product.findByIdAndUpdate
  
- 
-         product.save((err, result)=>{
-             if(err){
-                 return res.status(400).json({
-                     error: errorHandler(err)
-                 });
-             }
-             res.json({
-                 result
-             });
-         })
+        //  product.save((err, result)=>{
+        //      if(err){
+        //          return res.status(400).json({
+        //              error: errorHandler(err)
+        //          });
+        //      }
+        //      res.json({
+        //          result
+        //      });
+        //  })
  
  
     })
@@ -186,6 +197,7 @@ exports.list = (req, res)=>{
     Product.find()
     .select("-photo")
     .populate("category")
+    .populate("foodlancer")
     .sort([[sortBy, order]])
     .limit(limit)
     .exec((err, products)=>{
@@ -199,6 +211,23 @@ exports.list = (req, res)=>{
     });
 };
 
+
+exports.foodlancerList = (req, res)=>{
+    let order = req.query.order ? req.query.order: 'asc';
+    let sortBy = req.query.sortBy ? req.query.sortBy: '_id';
+    let foodlancerId = req.profile._id;
+    // console.log(foodlancerId)
+    Product.find({foodlancer: foodlancerId})
+    .exec((err, products)=>{
+        if(err){
+            return res.status(400).json({
+                error: 'Product Not Found'
+                // error: errorHandler(err)
+             });
+        }
+        res.json(products)
+    });
+};
 // it willfind the products based on the request product category
 // other products that has the same category will return
 
@@ -209,6 +238,7 @@ exports.listRelated = (req, res)=>{
     Product.find({_id: {$ne:req.product}, category: req.product.category})
     .limit(limit)
     .populate("category", '_id name')
+    .populate("foodlancer")
     .exec((err, products)=>{
         if(err){
             return res.status(400).json({
@@ -268,6 +298,7 @@ exports.listBySearch = (req, res) => {
     Product.find(findArgs)
         .select("-photo")
         .populate("category")
+        .populate("foodlancer")
         .sort([[sortBy, order]])
         .skip(skip)
         .limit(limit)
